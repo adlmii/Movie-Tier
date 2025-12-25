@@ -13,8 +13,8 @@ export default function DraggableSearchResult({ movie }: { movie: Movie }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      // Animasi saat item muncul
       layoutId={`search-${movie.id}`} 
+      
       initial={{ opacity: 0, scale: 0.8, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       whileHover={{ scale: 1.05, rotate: 2 }}
@@ -26,8 +26,11 @@ export default function DraggableSearchResult({ movie }: { movie: Movie }) {
       }`}
     >
       <img
-        src={movie.poster_path}
+        src={`${movie.poster_path}?v=1`}
         alt={movie.title}
+        
+        crossOrigin="anonymous"
+        
         className="w-full h-full object-cover pointer-events-none"
       />
       
