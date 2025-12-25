@@ -1,4 +1,5 @@
 import { useDraggable } from '@dnd-kit/core';
+import { motion } from 'framer-motion';
 import type { Movie } from '../../types';
 
 export default function DraggableSearchResult({ movie }: { movie: Movie }) {
@@ -8,23 +9,34 @@ export default function DraggableSearchResult({ movie }: { movie: Movie }) {
   });
 
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`relative aspect-[2/3] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing border border-slate-700 hover:border-blue-500 transition-all ${
-        isDragging ? 'opacity-50' : 'opacity-100'
+      // Animasi saat item muncul
+      layoutId={`search-${movie.id}`} 
+      initial={{ opacity: 0, scale: 0.8, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      whileHover={{ scale: 1.05, rotate: 2 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', damping: 12 }}
+      
+      className={`relative aspect-[2/3] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing border border-slate-700 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/20 transition-all ${
+        isDragging ? 'opacity-40 grayscale ring-2 ring-blue-500/50' : 'opacity-100'
       }`}
     >
       <img
         src={movie.poster_path}
         alt={movie.title}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover pointer-events-none"
       />
-      {/* Overlay judul kecil */}
-      <div className="absolute bottom-0 w-full bg-black/60 p-1">
-        <p className="text-xs text-center text-white truncate">{movie.title}</p>
+      
+      {/* Overlay Judul */}
+      <div className="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent p-2 pt-4">
+        <p className="text-xs text-center text-white font-medium truncate">
+          {movie.title}
+        </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

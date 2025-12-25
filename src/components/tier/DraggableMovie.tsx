@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { motion } from 'framer-motion';
 import type { Movie } from '../../types';
 import { cn } from '../../lib/utils';
 
@@ -8,7 +9,6 @@ interface DraggableMovieProps {
 }
 
 export default function DraggableMovie({ movie }: DraggableMovieProps) {
-  // Hook sakti dari dnd-kit
   const {
     attributes,
     listeners,
@@ -30,15 +30,26 @@ export default function DraggableMovie({ movie }: DraggableMovieProps) {
       {...attributes}
       {...listeners}
       className={cn(
-        "relative aspect-[2/3] bg-slate-800 rounded-md overflow-hidden cursor-grab active:cursor-grabbing border border-transparent hover:border-white transition-all",
-        isDragging && "opacity-50 scale-105 z-50 ring-2 ring-blue-500"
+        "relative aspect-[2/3] bg-slate-800 rounded-md overflow-hidden cursor-grab active:cursor-grabbing border border-transparent hover:border-white/50 transition-colors",
+        isDragging && "opacity-20 z-0"
       )}
     >
-      <img
+      <motion.img
+        initial={{ scale: 0 }} 
+        animate={{ scale: 1 }}
+        layoutId={`movie-${movie.id}`} 
+        transition={{ 
+          type: "spring", 
+          stiffness: 300, 
+          damping: 20 
+        }}
+        
         src={movie.poster_path}
         alt={movie.title}
         className="w-full h-full object-cover pointer-events-none"
       />
+      
+      <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity pointer-events-none" />
     </div>
   );
 }
