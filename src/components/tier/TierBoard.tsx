@@ -26,7 +26,6 @@ export default function TierBoard() {
   const updateTierMovies = useTierStore((state) => state.updateTierMovies);
   const removeFromPool = useTierStore((state) => state.removeFromPool);
   
-  // Ambil Actions Reset
   const resetTierList = useTierStore((state) => state.resetTierList);
   const resetAll = useTierStore((state) => state.resetAll);
   
@@ -34,14 +33,8 @@ export default function TierBoard() {
   const [activeMovie, setActiveMovie] = useState<Movie | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5, 
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
   function findTier(id: string | number): Tier | undefined {
@@ -53,7 +46,6 @@ export default function TierBoard() {
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
     const data = active.data.current;
-
     if (data?.movie) {
       setActiveMovie(data.movie);
     } else {
@@ -68,22 +60,16 @@ export default function TierBoard() {
     setActiveMovie(null);
 
     if (!over) return;
-
     const activeId = active.id;
     const overId = over.id;
 
-    // Skenario 1: Dari Pool (Unranked) -> Masuk ke Tier
     if (active.data.current?.type === 'POOL_ITEM' || active.data.current?.type === 'SEARCH_ITEM') {
       const movie = active.data.current.movie as Movie;
       const targetTier = findTier(overId);
-
-      if (targetTier) {
-        addMovieToTier(movie, targetTier.id);
-      }
+      if (targetTier) addMovieToTier(movie, targetTier.id);
       return;
     }
 
-    // Skenario 2 & 3: Pindah Antar Tier / Dalam Tier
     const activeTier = findTier(activeId);
     const overTier = findTier(overId);
 
@@ -92,182 +78,155 @@ export default function TierBoard() {
     if (activeTier.id === overTier.id) {
       const oldIndex = activeTier.movies.findIndex((m) => m.id === activeId);
       const newIndex = overTier.movies.findIndex((m) => m.id === overId);
-
       if (oldIndex !== newIndex && newIndex !== -1) {
         const newMovies = arrayMove(activeTier.movies, oldIndex, newIndex);
         updateTierMovies(activeTier.id, newMovies);
       }
-    } 
-    else {
+    } else {
       const movieToMove = activeTier.movies.find((m) => m.id === activeId);
       if (!movieToMove) return;
-
+      
       const newActiveTierMovies = activeTier.movies.filter((m) => m.id !== activeId);
       updateTierMovies(activeTier.id, newActiveTierMovies);
 
       const newOverTierMovies = [...overTier.movies];
       const overIndex = overTier.movies.findIndex((m) => m.id === overId);
-      
-      if (overIndex >= 0) {
-        newOverTierMovies.splice(overIndex, 0, movieToMove);
-      } else {
-        newOverTierMovies.push(movieToMove);
-      }
-
+      if (overIndex >= 0) newOverTierMovies.splice(overIndex, 0, movieToMove);
+      else newOverTierMovies.push(movieToMove);
       updateTierMovies(overTier.id, newOverTierMovies);
     }
   }
 
-  // Helper untuk cek state tombol
   const hasRankedMovies = tiers.some(t => t.movies.length > 0);
   const hasAnyMovies = moviesPool.length > 0 || hasRankedMovies;
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={rectIntersection} 
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="relative min-h-screen">
+    <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="relative min-h-screen pb-20">
         
-        {/* BACKGROUND AMBIENT LIGHT */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[120px]" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px]" />
+        {/* Background Glow Ambient */}
+        <div className="fixed inset-0 pointer-events-none -z-10">
+            <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[120px]" />
         </div>
 
         <div className="max-w-7xl mx-auto p-6 md:p-10 space-y-10">
           
-          {/* HEADER DENGAN NAVIGASI */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-white/5">
-            <div className="flex items-center gap-6 w-full md:w-auto">
-              {/* Tombol Back */}
-              <Link to="/" className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all hover:scale-105">
-                <ArrowLeft className="w-6 h-6" />
+          {/* --- HEADER --- */}
+          <div className="flex flex-col xl:flex-row items-center justify-between gap-6 pb-6 border-b border-white/5">
+            <div className="flex items-center gap-6 w-full xl:w-auto">
+              <Link to="/" className="p-3 rounded-full bg-surface hover:bg-white/10 text-slate-400 hover:text-white transition-all hover:scale-105 border border-white/5">
+                <ArrowLeft className="w-5 h-5" />
               </Link>
-              
               <div className="text-left">
-                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                  <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                    Ranking Board
-                  </span>
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                  Ranking Board
                 </h1>
-                <p className="text-slate-400 text-sm font-medium">Drag from collection to rank</p>
+                <p className="text-slate-400 text-sm font-medium mt-1">Drag and drop to rank your collection</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              
-              {/* 1. TOMBOL RESET RANKING (Aman - Simpan Koleksi) */}
+              {/* Reset Ranking */}
               <button
-                onClick={() => {
-                  if (window.confirm('Reset ranking positions? Movies will return to collection.')) {
-                    resetTierList();
-                  }
-                }}
+                onClick={() => window.confirm('Reset ranking positions?') && resetTierList()}
                 disabled={!hasRankedMovies}
-                className="p-3 rounded-full bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                title="Reset Board (Keep Collection)"
+                className="btn-secondary disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Reset Ranking"
               >
-                <RotateCcw className="w-5 h-5" />
+                <RotateCcw className="w-4 h-4" />
+                <span className="hidden sm:inline text-sm font-semibold">Reset</span>
               </button>
 
-              {/* 2. TOMBOL DELETE ALL (Bahaya - Hapus Semuanya) */}
+              {/* Delete All */}
               <button
-                onClick={() => {
-                  if (window.confirm('WARNING: This will delete ALL movies and start over. Are you sure?')) {
-                    resetAll();
-                  }
-                }}
+                onClick={() => window.confirm('Delete EVERYTHING?') && resetAll()}
                 disabled={!hasAnyMovies}
-                className="p-3 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                title="Delete Everything (Start New)"
+                className="btn-secondary hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 disabled:opacity-30"
+                title="Delete Everything"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-4 h-4" />
               </button>
 
-              <div className="w-px h-8 bg-white/10 mx-2 hidden md:block" />
+              <div className="w-px h-8 bg-white/10 mx-1 hidden sm:block" />
 
-              {/* Tombol Export */}
+              {/* Export Button (Primary) */}
               <button
                 onClick={() => takeScreenshot('tier-list-export')}
                 disabled={isDownloading}
-                className="group relative px-6 py-2.5 bg-white text-black rounded-full font-bold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden whitespace-nowrap"
+                className="btn-primary px-6 py-2.5 flex items-center gap-2"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                <div className="flex items-center gap-2">
-                  {isDownloading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Download className="w-4 h-4" />
-                  )}
-                  <span>Save Image</span>
-                </div>
+                {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                <span className="text-sm">Save Image</span>
+                {/* Shimmer Effect Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-shimmer" />
               </button>
             </div>
           </div>
 
-          {/* BOARD AREA (TIER LIST) */}
+          {/* --- TIER BOARD AREA --- */}
           <div 
             id="tier-list-export"
-            className="p-6 md:p-8 rounded-3xl bg-[#0B0E14] border border-white/5 shadow-2xl"
+            className="p-1 rounded-3xl bg-gradient-to-b from-white/5 to-transparent shadow-2xl"
           >
-            {tiers.map((tier) => (
-              <TierRow key={tier.id} tier={tier} />
-            ))}
-            
-            <div className="flex items-center justify-center gap-2 mt-6 opacity-30">
-              <div className="h-px w-12 bg-white" />
-              <span className="text-[10px] font-bold tracking-[0.3em] uppercase">Created with RankMyMovie</span>
-              <div className="h-px w-12 bg-white" />
+            <div className="p-6 md:p-8 bg-[#0B0E14]/90 backdrop-blur-sm rounded-[20px] border border-white/5">
+                {tiers.map((tier) => (
+                <TierRow key={tier.id} tier={tier} />
+                ))}
+                
+                {/* Watermark Minimalis */}
+                <div className="flex items-center justify-center gap-3 mt-8 opacity-20">
+                <div className="h-px w-16 bg-white" />
+                <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-white">RankMyMovie</span>
+                <div className="h-px w-16 bg-white" />
+                </div>
             </div>
           </div>
 
-          {/* POOL AREA (UNRANKED COLLECTION) */}
+          {/* --- UNRANKED COLLECTION --- */}
           <div className="mt-12 pt-8 border-t border-white/5">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                <Layers className="w-6 h-6" />
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2.5 bg-surface border border-white/5 rounded-xl text-primary shadow-lg shadow-primary/10">
+                <Layers className="w-5 h-5" />
               </div>
-              <h3 className="text-xl font-bold text-white">
-                Unranked Collection 
-                <span className="ml-3 text-sm font-normal text-slate-500 bg-slate-800 px-2 py-1 rounded-md">
-                  {moviesPool.length} items
-                </span>
-              </h3>
+              <div>
+                  <h3 className="text-xl font-bold text-white tracking-tight">Unranked Collection</h3>
+                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">
+                    {moviesPool.length} Items Available
+                  </p>
+              </div>
             </div>
             
             {moviesPool.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/30 text-center">
-                <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-                  <Layers className="w-8 h-8 text-slate-600" />
+              <div className="glass-panel rounded-2xl p-12 flex flex-col items-center justify-center text-center border-dashed border-2 border-white/10 bg-transparent">
+                <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center mb-4 text-slate-600">
+                  <Layers className="w-8 h-8" />
                 </div>
-                <p className="text-slate-400 font-medium mb-2">Your collection is empty</p>
-                <p className="text-slate-600 text-sm mb-6">Go back to home to discover and add movies.</p>
-                <Link to="/" className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-bold transition-colors">
-                  Find Movies
+                <p className="text-slate-400 font-medium">Your collection is empty</p>
+                <Link to="/" className="mt-4 text-primary hover:text-primary/80 font-bold text-sm hover:underline underline-offset-4">
+                  + Add Movies
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-4 animate-fade-in-up">
+              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-4 px-2">
                 {moviesPool.map((movie) => (
-                  <DraggableSearchResult 
-                    key={movie.id} 
-                    movie={movie}
-                    onRemove={() => removeFromPool(movie.id)}
-                  />
+                  <div key={movie.id} className="animate-fade-in-up">
+                      <DraggableSearchResult 
+                        movie={movie}
+                        onRemove={() => removeFromPool(movie.id)}
+                      />
+                  </div>
                 ))}
               </div>
             )}
           </div>
+
         </div>
       </div>
-
       <DragOverlay>
         {activeMovie ? (
-          <div className="w-28 opacity-90 rotate-3 scale-110 shadow-2xl shadow-black/50 cursor-grabbing">
-             <img src={`${activeMovie.poster_path}?v=1`} className="rounded-lg border-2 border-white/20" />
+          <div className="w-28 rotate-3 scale-110 shadow-2xl shadow-black/80 cursor-grabbing ring-2 ring-primary/50 rounded-lg overflow-hidden">
+             <img src={`${activeMovie.poster_path}?v=1`} className="w-full h-full object-cover" />
           </div>
         ) : null}
       </DragOverlay>

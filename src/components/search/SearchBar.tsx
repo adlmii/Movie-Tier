@@ -16,21 +16,22 @@ export default function SearchBar() {
   }, [debouncedQuery, searchMovies]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto mb-10 relative z-20">
+    <div className="w-full max-w-2xl mx-auto mb-10 relative z-20 px-4 md:px-0">
       <div 
-        className={`relative group transition-all duration-300 ${
-          isFocused ? 'scale-105' : 'scale-100'
+        className={`relative group transition-all duration-500 ${
+          isFocused ? 'scale-[1.02]' : 'scale-100'
         }`}
       >
-        {/* Glow Effect di belakang */}
-        <div className={`absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur opacity-30 transition duration-500 group-hover:opacity-60 ${isFocused ? 'opacity-70' : ''}`} />
+        {/* Animated Gradient Border / Glow */}
+        <div className={`absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-2xl blur opacity-20 transition duration-1000 group-hover:opacity-50 ${isFocused ? 'opacity-70 blur-md' : ''}`} />
         
-        <div className="relative flex items-center bg-[#151923] rounded-2xl border border-white/10 shadow-2xl">
-          <div className="pl-6 text-slate-400">
+        <div className="relative flex items-center bg-[#0B0E14] rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+          {/* Icon Kiri */}
+          <div className="pl-6 text-slate-500">
             {isLoading ? (
-              <Loader2 className="animate-spin w-5 h-5 text-blue-400" />
+              <Loader2 className="animate-spin w-5 h-5 text-primary" />
             ) : (
-              <Search className={`w-5 h-5 transition-colors ${isFocused ? 'text-blue-400' : ''}`} />
+              <Search className={`w-5 h-5 transition-colors duration-300 ${isFocused ? 'text-primary' : ''}`} />
             )}
           </div>
 
@@ -40,12 +41,13 @@ export default function SearchBar() {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search movies (e.g. Avengers, Joker)..."
-            className="w-full p-5 bg-transparent text-lg text-white placeholder-slate-500 focus:outline-none font-medium"
+            placeholder="Search specific movies..."
+            className="w-full py-5 px-4 bg-transparent text-lg text-white placeholder-slate-600 focus:outline-none font-medium tracking-wide"
           />
           
+          {/* Icon Kanan (Decoration) */}
           <div className="pr-6">
-            <Sparkles className="w-5 h-5 text-slate-600 group-hover:text-yellow-400 transition-colors duration-500" />
+            <Sparkles className={`w-5 h-5 transition-colors duration-500 ${isFocused ? 'text-yellow-400' : 'text-slate-700'}`} />
           </div>
         </div>
       </div>

@@ -15,21 +15,22 @@ export default function DraggableSearchResult({ movie, onRemove }: Props) {
   });
 
   return (
-    <div className="relative group">
+    <div className="relative group animate-fade-in-up">
       <motion.div
         ref={setNodeRef}
         {...listeners}
         {...attributes}
         layoutId={`pool-${movie.id}`}
         
-        initial={{ opacity: 0, scale: 0.8 }}
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        transition={{ type: 'spring', damping: 15 }}
-
-        className={`relative aspect-[2/3] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing border border-white/10 hover:border-blue-500/50 hover:shadow-xl transition-all ${
-          isDragging ? 'opacity-30 grayscale' : 'opacity-100'
+        
+        className={`relative aspect-[2/3] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing border transition-all duration-300 shadow-lg ${
+          isDragging 
+            ? 'opacity-40 grayscale ring-2 ring-primary' 
+            : 'border-white/10 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]'
         }`}
       >
         <img
@@ -39,22 +40,23 @@ export default function DraggableSearchResult({ movie, onRemove }: Props) {
           className="w-full h-full object-cover pointer-events-none"
         />
         
-        {/* Overlay Judul */}
-        <div className="absolute bottom-0 w-full bg-gradient-to-t from-black via-black/60 to-transparent p-2 pt-6">
-          <p className="text-[10px] text-center text-white/90 font-medium truncate leading-tight">
+        {/* Overlay Judul Mini */}
+        <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/90 to-transparent p-2 pt-6">
+          <p className="text-[10px] text-center text-slate-200 font-medium truncate">
             {movie.title}
           </p>
         </div>
       </motion.div>
 
+      {/* Tombol Hapus */}
       {onRemove && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
           }}
-          onPointerDown={(e) => e.stopPropagation()} // PENTING: Mencegah dnd-kit mengambil alih klik
-          className="absolute -top-2 -right-2 z-10 p-1.5 bg-red-500/90 hover:bg-red-600 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute -top-2 -right-2 z-10 p-1.5 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 hover:bg-red-600 border border-white/20"
           title="Remove from collection"
         >
           <X size={12} strokeWidth={3} />
