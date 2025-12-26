@@ -1,73 +1,96 @@
-# React + TypeScript + Vite
+# 🎬 WatchTier - Ultimate Movie Ranking App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**WatchTier** adalah aplikasi web interaktif modern untuk menemukan, mengoleksi, dan memeringkat film favorit kamu ke dalam Tier List.
 
-Currently, two official plugins are available:
+🔗 **Live Demo:** [https://watchtier-app.vercel.app/](https://watchtier-app.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ✨ Fitur Utama
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **🔍 Infinite Discovery:** Jelajahi ribuan film populer dan trending dengan sistem Pagination yang mulus.
+- **📂 Collection Pool:** Tambahkan film ke dalam "kolam" koleksi (Unranked) sebelum memeringkatnya.
+- **drag_and_drop Interactive Ranking:** Gunakan fitur *Drag-and-Drop* canggih yang dioptimalkan untuk Mouse (Desktop) dan Touchscreen (Mobile/Tablet).
+- **📸 Export to Image:** Simpan hasil Tier List kamu sebagai gambar (PNG) berkualitas tinggi dengan satu klik.
+- **💡 Smart Recommendations:** Temukan film serupa di halaman detail film ("You Might Also Like") untuk eksplorasi tanpa henti.
+- **⚡ High Performance:** Dilengkapi dengan *Skeleton Loading*, *Lazy Image Loading*, dan optimasi rendering untuk pengalaman pengguna yang cepat.
+- **🎨 Premium UI/UX:** Desain *Dark Mode* dengan gaya Glassmorphism, animasi halus (Framer Motion), dan responsif di semua ukuran layar.
+- **🛡️ Data Persistence:** Tier list kamu tersimpan otomatis di browser (Local Storage), jadi tidak akan hilang saat di-refresh.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ Teknologi yang Digunakan
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Aplikasi ini dibangun menggunakan *Modern Frontend Stack*:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Core:** [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool:** [Vite](https://vitejs.dev/) (Super cepat)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **State Management:** [Zustand](https://github.com/pmndrs/zustand) (dengan LocalStorage persistence)
+- **Drag & Drop:** [dnd-kit](https://dndkit.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **API:** [The Movie Database (TMDB)](https://www.themoviedb.org/)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🚀 Cara Menjalankan di Lokal
+
+Ikuti langkah ini untuk menjalankan proyek di komputer kamu:
+
+### 1. Clone Repository
+```bash
+git clone [https://github.com/username-kamu/watchtier.git](https://github.com/username-kamu/watchtier.git)
+cd watchtier
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 2. Install Dependencies
+```bash
+npm install
 ```
+
+### 3. Setup Environment Variables
+```bash
+VITE_TMDB_API_KEY=masukkan_api_key_tmdb_disini
+```
+(Dapatkan API Key gratis di themoviedb.org)
+
+#### 4. Jalankan Server Development
+```bash
+npm run dev
+```
+Buka browser dan akses http://localhost:5173.
+
+---
+
+## 🔒 Keamanan API Key
+Aplikasi ini menggunakan restriksi HTTP Referrer untuk mengamankan API Key TMDB.
+- API Key tidak disembunyikan di sisi klien (karena ini SPA/Frontend-only).
+- Pengamanan dilakukan dengan mendaftarkan domain produksi (misal: watchtier-app.vercel.app) di dashboard TMDB, sehingga key tidak bisa disalahgunakan di website lain.
+
+---
+
+## 📂 Struktur Folder Utama
+```
+src/
+├── components/      
+│   ├── movie/       # Komponen Kartu Film
+│   ├── search/      # Search Bar & Hasil Pencarian
+│   ├── tier/        # Papan Tier List & Logic Drag-n-Drop
+│   └── ui/          # Komponen UI Umum (Skeleton, ErrorBoundary)
+├── hooks/           # Custom Hooks (useDebounce, useScreenshot)
+├── lib/             # Konfigurasi Library (axios, utils)
+├── pages/           # Halaman Utama (Home, MovieDetail)
+├── store/           # Global State Management (Zustand)
+└── types/           # Definisi Tipe TypeScript
+```
+
+---
+
+## 🤝 Kontribusi
+Pull Request dipersilakan! Untuk perubahan besar, harap buka Issue terlebih dahulu untuk mendiskusikan apa yang ingin kamu ubah.
+
+---
+
+## 📝 Lisensi
+Proyek ini dilisensikan di bawah [MIT License](LICENSE).
