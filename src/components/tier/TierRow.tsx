@@ -1,3 +1,4 @@
+import { useCallback } from 'react'; //
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import type { Tier, Movie } from '../../types';
@@ -15,16 +16,14 @@ export default function TierRow({ tier }: TierRowProps) {
   });
 
   const unrankMovie = useTierStore((state) => state.unrankMovie);
-
-  const handleUnrank = (movie: Movie) => {
+  const handleUnrank = useCallback((movie: Movie) => {
     unrankMovie(movie, tier.id);
-  };
+  }, [tier.id, unrankMovie]); // Dependensi: hanya jika tier.id berubah (jarang)
 
   return (
     <div className="flex w-full mb-4 rounded-xl overflow-hidden border border-white/5 bg-gradient-to-r from-surface/40 to-surface/20 backdrop-blur-sm group hover:border-white/10 transition-all duration-500 shadow-lg hover:shadow-xl">
       
-      {/* LABEL TIER (S, A, B...) - DIPERKECIL DISINI */}
-      {/* Ubah w-28 md:w-36 menjadi w-20 md:w-24 */}
+      {/* LABEL TIER (S, A, B...) */}
       <div className="w-20 md:w-24 flex-shrink-0 flex items-center justify-center relative overflow-hidden border-r border-white/5 bg-black/20">
         
         {/* Gradient Background */}
@@ -43,19 +42,16 @@ export default function TierRow({ tier }: TierRowProps) {
         
         {/* Tier Label */}
         <div className="relative z-10 flex flex-col items-center gap-0.5">
-          {/* Ubah ukuran font: text-4xl md:text-5xl */}
           <span 
             className="text-4xl md:text-5xl font-black tracking-tighter transform transition-all duration-500 group-hover:scale-110 not-italic"
             style={{ 
               color: tier.color,
               textShadow: `0 0 20px ${tier.color}40`,
-              // WebkitTextStroke dikurangi sedikit agar tidak terlalu tebal di font kecil
               WebkitTextStroke: '0.5px rgba(0,0,0,0.2)'
             }}
           >
             {tier.label}
           </span>
-          {/* Garis dekorasi disesuaikan ukurannya */}
           <div 
             className="h-0.5 w-6 rounded-full opacity-60 transition-all duration-500 group-hover:w-10"
             style={{ backgroundColor: tier.color }}
@@ -67,7 +63,6 @@ export default function TierRow({ tier }: TierRowProps) {
       <div
         ref={setNodeRef}
         className={cn(
-          // Padding dikurangi sedikit (p-3 md:p-4) dan min-h dikurangi agar baris tidak terlalu tinggi jika kosong
           "flex-1 flex flex-wrap gap-3 p-3 md:p-4 min-h-[120px] transition-all duration-500 relative",
           isOver && "bg-white/[0.03] shadow-[inset_0_0_50px_rgba(255,255,255,0.05)] border-l-2 border-l-primary/50"
         )}
@@ -77,11 +72,11 @@ export default function TierRow({ tier }: TierRowProps) {
           strategy={horizontalListSortingStrategy}
         >
           {tier.movies.map((movie) => (
-            // Ukuran kartu film juga bisa disesuaikan jika perlu, tapi w-24 sudah oke
             <div key={movie.id} className="w-20 md:w-28 transition-all duration-300 hover:scale-105">
+              {/* OPTIMASI: Kirim handleUnrank langsung */}
               <DraggableMovie 
                 movie={movie} 
-                onRemove={() => handleUnrank(movie)}
+                onRemove={handleUnrank}
               />
             </div>
           ))}

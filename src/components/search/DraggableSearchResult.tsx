@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -5,10 +6,10 @@ import type { Movie } from '../../types';
 
 interface Props {
   movie: Movie;
-  onRemove?: () => void;
+  onRemove?: (id: number) => void; 
 }
 
-export default function DraggableSearchResult({ movie, onRemove }: Props) {
+const DraggableSearchResult = memo(function DraggableSearchResult({ movie, onRemove }: Props) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `pool-${movie.id}`,
     data: { movie, type: 'POOL_ITEM' },
@@ -36,10 +37,8 @@ export default function DraggableSearchResult({ movie, onRemove }: Props) {
           src={`${movie.poster_path}?v=1`}
           alt={movie.title}
           crossOrigin="anonymous"
-          // OPTIMASI GAMBAR DISINI
           loading="lazy"
           decoding="async"
-          // ----------------------
           className="w-full h-full object-cover pointer-events-none"
         />
         
@@ -54,15 +53,17 @@ export default function DraggableSearchResult({ movie, onRemove }: Props) {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onRemove();
+            // Panggil dengan ID
+            onRemove(movie.id);
           }}
           onPointerDown={(e) => e.stopPropagation()}
           className="absolute -top-2 -right-2 z-10 p-1.5 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:scale-110 hover:bg-red-600 border border-white/20"
-          title="Remove from collection"
         >
           <X size={12} strokeWidth={3} />
         </button>
       )}
     </div>
   );
-}
+});
+
+export default DraggableSearchResult;

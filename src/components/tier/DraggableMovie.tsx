@@ -1,16 +1,17 @@
+import { memo } from 'react'; // Tambah memo
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react'; // Import icon X
+import { X } from 'lucide-react';
 import type { Movie } from '../../types';
 import { cn } from '../../lib/utils';
 
 interface DraggableMovieProps {
   movie: Movie;
-  onRemove?: () => void;
+  onRemove?: (movie: Movie) => void; 
 }
 
-export default function DraggableMovie({ movie, onRemove }: DraggableMovieProps) {
+const DraggableMovie = memo(function DraggableMovie({ movie, onRemove }: DraggableMovieProps) {
   const {
     attributes,
     listeners,
@@ -45,7 +46,7 @@ export default function DraggableMovie({ movie, onRemove }: DraggableMovieProps)
         src={`${movie.poster_path}?v=1`}
         alt={movie.title}
         crossOrigin="anonymous" 
-        
+        loading="lazy"
         className="w-full h-full object-cover pointer-events-none"
       />
       
@@ -55,16 +56,19 @@ export default function DraggableMovie({ movie, onRemove }: DraggableMovieProps)
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onRemove();
+            onRemove(movie);
           }}
-          // Mencegah dnd-kit mengambil alih klik mouse
           onPointerDown={(e) => e.stopPropagation()} 
           className="absolute top-1 right-1 p-1 bg-red-500/80 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all hover:scale-110 shadow-sm z-10"
-          title="Unrank (Return to Collection)"
+          title="Unrank"
         >
           <X size={10} strokeWidth={3} />
         </button>
       )}
     </div>
   );
-}
+}, (prev, next) => {
+  return prev.movie.id === next.movie.id && prev.onRemove === next.onRemove;
+});
+
+export default DraggableMovie;

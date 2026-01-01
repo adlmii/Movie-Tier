@@ -8,7 +8,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-} from '@dnd-kit/core';
+} from '@dnd-kit/core'; //
 import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { Download, Loader2, ArrowLeft, Layers, RotateCcw, Trash2, Sparkles } from 'lucide-react';
@@ -282,9 +282,11 @@ export default function TierBoard() {
                     className="animate-fade-in-up"
                     style={{ animationDelay: `${index * 30}ms` }}
                   >
+                    {/* OPTIMASI: Kirim removeFromPool langsung */}
+                    {/* DraggableSearchResult mengharapkan (id: number) => void */}
                     <DraggableSearchResult 
                       movie={movie}
-                      onRemove={() => removeFromPool(movie.id)}
+                      onRemove={removeFromPool} 
                     />
                   </div>
                 ))}
