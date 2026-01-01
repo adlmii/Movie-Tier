@@ -21,37 +21,55 @@ export default function TierRow({ tier }: TierRowProps) {
   };
 
   return (
-    <div className="flex w-full mb-4 rounded-2xl overflow-hidden glass-panel group hover:border-white/10 transition-all duration-300">
+    <div className="flex w-full mb-4 rounded-xl overflow-hidden border border-white/5 bg-gradient-to-r from-surface/40 to-surface/20 backdrop-blur-sm group hover:border-white/10 transition-all duration-500 shadow-lg hover:shadow-xl">
       
-      {/* LABEL TIER (S, A, B...) */}
-      <div
-        className="w-24 md:w-32 flex-shrink-0 flex items-center justify-center relative overflow-hidden"
-      >
+      {/* LABEL TIER (S, A, B...) - DIPERKECIL DISINI */}
+      {/* Ubah w-28 md:w-36 menjadi w-20 md:w-24 */}
+      <div className="w-20 md:w-24 flex-shrink-0 flex items-center justify-center relative overflow-hidden border-r border-white/5 bg-black/20">
+        
+        {/* Gradient Background */}
         <div 
-            className="absolute inset-0 opacity-10 transition-opacity group-hover:opacity-20" 
-            style={{ backgroundColor: tier.color }} 
+          className="absolute inset-0 opacity-[0.2] transition-opacity duration-500 group-hover:opacity-30" 
+          style={{ 
+            background: `linear-gradient(135deg, ${tier.color}40 0%, ${tier.color}10 100%)`
+          }} 
         />
         
-        <div className="absolute left-0 top-0 bottom-0 w-1 shadow-[0_0_15px_rgba(0,0,0,0.5)]" style={{ backgroundColor: tier.color }} />
+        {/* Accent Border */}
+        <div 
+          className="absolute left-0 top-0 bottom-0 w-1 shadow-[0_0_15px_rgba(0,0,0,0.5)] transition-all duration-500 group-hover:w-1.5"
+          style={{ backgroundColor: tier.color }} 
+        />
         
-        <span 
-          className="text-5xl md:text-6xl font-black italic tracking-tighter drop-shadow-2xl transform transition-transform group-hover:scale-110"
-          style={{ 
-            color: tier.color,
-            textShadow: `0 0 30px ${tier.color}40`
-          }}
-        >
-          {tier.label}
-        </span>
+        {/* Tier Label */}
+        <div className="relative z-10 flex flex-col items-center gap-0.5">
+          {/* Ubah ukuran font: text-4xl md:text-5xl */}
+          <span 
+            className="text-4xl md:text-5xl font-black tracking-tighter transform transition-all duration-500 group-hover:scale-110 not-italic"
+            style={{ 
+              color: tier.color,
+              textShadow: `0 0 20px ${tier.color}40`,
+              // WebkitTextStroke dikurangi sedikit agar tidak terlalu tebal di font kecil
+              WebkitTextStroke: '0.5px rgba(0,0,0,0.2)'
+            }}
+          >
+            {tier.label}
+          </span>
+          {/* Garis dekorasi disesuaikan ukurannya */}
+          <div 
+            className="h-0.5 w-6 rounded-full opacity-60 transition-all duration-500 group-hover:w-10"
+            style={{ backgroundColor: tier.color }}
+          />
+        </div>
       </div>
 
       {/* DROP ZONE */}
       <div
         ref={setNodeRef}
         className={cn(
-          "flex-1 flex flex-wrap gap-3 p-4 min-h-[150px] transition-all duration-300 relative",
-          // Efek visual saat drag item di atasnya
-          isOver ? "bg-white/[0.02] shadow-[inset_0_0_40px_rgba(0,0,0,0.3)]" : ""
+          // Padding dikurangi sedikit (p-3 md:p-4) dan min-h dikurangi agar baris tidak terlalu tinggi jika kosong
+          "flex-1 flex flex-wrap gap-3 p-3 md:p-4 min-h-[120px] transition-all duration-500 relative",
+          isOver && "bg-white/[0.03] shadow-[inset_0_0_50px_rgba(255,255,255,0.05)] border-l-2 border-l-primary/50"
         )}
       >
         <SortableContext 
@@ -59,7 +77,8 @@ export default function TierRow({ tier }: TierRowProps) {
           strategy={horizontalListSortingStrategy}
         >
           {tier.movies.map((movie) => (
-            <div key={movie.id} className="w-24 md:w-28 shadow-lg">
+            // Ukuran kartu film juga bisa disesuaikan jika perlu, tapi w-24 sudah oke
+            <div key={movie.id} className="w-20 md:w-28 transition-all duration-300 hover:scale-105">
               <DraggableMovie 
                 movie={movie} 
                 onRemove={() => handleUnrank(movie)}
@@ -68,11 +87,34 @@ export default function TierRow({ tier }: TierRowProps) {
           ))}
         </SortableContext>
         
+        {/* Empty State */}
         {tier.movies.length === 0 && !isOver && (
-          <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-            <span className="text-4xl font-black text-white/5 tracking-[0.2em] select-none">
-                DROP HERE
-            </span>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="flex flex-col items-center gap-1.5 opacity-[0.06] transition-opacity duration-500 group-hover:opacity-[0.1]">
+              <span 
+                className="text-2xl md:text-3xl font-black tracking-[0.2em] select-none"
+                style={{ color: tier.color }}
+              >
+                DROP
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Drag Over Indicator */}
+        {isOver && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div 
+              className="px-6 py-3 rounded-xl border-2 border-dashed animate-pulse"
+              style={{ borderColor: `${tier.color}60`, backgroundColor: `${tier.color}10` }}
+            >
+              <span 
+                className="text-lg font-bold tracking-wider"
+                style={{ color: tier.color }}
+              >
+                Rank It
+              </span>
+            </div>
           </div>
         )}
       </div>
